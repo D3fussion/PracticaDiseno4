@@ -26,7 +26,7 @@ const obtenerDatosClima = async (ciudad) => {
 
     currentController = new AbortController();
 
-    const url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${ciudad}`;
+    const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${ciudad}`;
 
     actualizarMensaje(4, "Cargando...");
 
