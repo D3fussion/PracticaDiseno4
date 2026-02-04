@@ -1,6 +1,6 @@
 let currentController = null;
 
-const apiKey = "";
+const apiKey = "45fb755a5e2d41489cf171503260402"; // Esta llave no hay problema con sea publica
 
 const diccionarioId = {
     ciudad: document.getElementById('ciudad'),
