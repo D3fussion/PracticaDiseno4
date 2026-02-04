@@ -1,6 +1,6 @@
 let currentController = null;
 
-const apiKey = "d3fb751aa95d44a2adc174147260302";
+const apiKey = "";
 
 const diccionarioId = {
     ciudad: document.getElementById('ciudad'),
