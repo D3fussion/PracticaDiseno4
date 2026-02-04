@@ -78,7 +78,7 @@ const obtenerDatosClima = async (ciudad) => {
 function actualizarMensaje(tipo, mensaje) {
     const mensajesPeticion = document.getElementById("mensajesPeticion");
 
-    mensajesPeticion.className = "mt-8 w-1/3 h-fit border-2 shadow-sm p-4";
+    mensajesPeticion.className = "mt-8 w-[80%] md:1/2 lg:w-1/3 h-fit border-2 shadow-sm p-4";
 
     switch (tipo) {
         case 1: // Success
