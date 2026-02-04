@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es-MX" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Clima</title>
+    <link rel="stylesheet" href="src/css/tailwindOutput.css">
+</head>
+
+<body class="font-archivo">
+    <main class="flex justify-center items-center h-screen w-screen flex-col bg-stone-50">
+
+        <form id="formPrincipal" class="w-1/3 h-fit border-2 border-stone-200 shadow-sm p-4 bg-white" role="search">
+            <fieldset class="flex flex-col gap-2">
+                <legend class="fieldset-legend">Buscar Ciudad</legend>
+
+                <label class="input w-full flex items-center gap-2">
+                    <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        aria-hidden="true" focusable="false">
+                        <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                            stroke="currentColor">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                        </g>
+                    </svg>
+
+                    <input type="search" name="Ciudad" required placeholder="Escribe una ciudad..."
+                        aria-label="Nombre de la ciudad a buscar" />
+                </label>
+            </fieldset>
+            <button type="submit" class="btn btn-neutral w-full mt-4">Consultar clima</button>
+        </form>
+
+        <section class="w-1/3 h-fit border-2 border-stone-200 shadow-sm p-4 mt-8 bg-white" id="weather-container"
+            aria-labelledby="titulo-clima" aria-live="polite" aria-atomic="true">
+            <h2 class="sr-only" id="titulo-clima">Información del Clima</h2>
+
+            <dl class="flex flex-col gap-0">
+                <div>
+                    <dt class="font-semibold inline">Ciudad:</dt>
+                    <dd class="font-normal inline" id="ciudad"></dd>
+                </div>
+                <div>
+                    <dt class="font-semibold inline">País:</dt>
+                    <dd class="font-normal inline" id="pais"></dd>
+                </div>
+
+                <div class="mt-4">
+                    <dt class="font-semibold inline">Hora de actualización:</dt>
+                    <dd class="font-normal inline" id="actualizacion"></dd>
+                </div>
+
+                <div>
+                    <dt class="font-semibold inline">Temperatura actual:</dt>
+                    <dd class="font-normal inline" id="temperatura"></dd>
+                </div>
+                <div>
+                    <dt class="font-semibold inline">Sensación térmica:</dt>
+                    <dd class="font-normal inline" id="sensacion"></dd>
+                </div>
+                <div>
+                    <dt class="font-semibold inline">Máxima hoy:</dt>
+                    <dd class="font-normal inline" id="maxima"></dd>
+                </div>
+                <div>
+                    <dt class="font-semibold inline">Mínima hoy:</dt>
+                    <dd class="font-normal inline" id="minima"></dd>
+                </div>
+
+                <div class="mt-4">
+                    <dt class="font-semibold inline">Estado del cielo:</dt>
+                    <dd class="font-normal inline" id="condicion"></dd>
+                </div>
+
+                <div class="mt-4">
+                    <dt class="font-semibold inline">Humedad:</dt>
+                    <dd class="font-normal inline" id="humedad"></dd>
+                </div>
+                <div>
+                    <dt class="font-semibold inline">Índice UV:</dt>
+                    <dd class="font-normal inline" id="uv"></dd>
+                </div>
+                <div>
+                    <dt class="font-semibold inline">Viento:</dt>
+                    <dd class="font-normal inline" id="viento"></dd>
+                </div>
+                <div>
+                    <dt class="font-semibold inline">Visibilidad:</dt>
+                    <dd class="font-normal inline" id="visibilidad"></dd>
+                </div>
+                <div>
+                    <dt class="font-semibold inline">Presión Atmosférica:</dt>
+                    <dd class="font-normal inline" id="presion"></dd>
+                </div>
+            </dl>
+        </section>
+
+        <output id="mensajesPeticion"
+            class="mt-8 w-1/3 h-fit border-2 border-stone-200 shadow-sm p-4 bg-white empty:hidden" role="status"
+            aria-live="polite" aria-atomic="true"></output>
+
+    </main>
+    <script src="src/js/script.js"></script>
+</body>
+
+</html>

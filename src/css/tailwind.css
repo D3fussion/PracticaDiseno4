@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Lexend:wght@100..900&display=swap');
+
+@plugin "daisyui";
+@plugin "tailwindcss-animate";
+@plugin "tailwind-scrollbar";
+@plugin "tailwind-scrollbar-hide";
+
+@theme {
+    --font-lexend: "Lexend", sans-serif;
+    --font-archivo: "Archivo", sans-serif;
+}
