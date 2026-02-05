@@ -47,19 +47,33 @@
             <fieldset class="flex flex-col gap-2">
                 <legend class="fieldset-legend">Buscar Ciudad</legend>
 
-                <label class="input w-full flex items-center gap-2">
-                    <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                        aria-hidden="true" focusable="false">
-                        <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
-                            stroke="currentColor">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.3-4.3"></path>
-                        </g>
-                    </svg>
+                <div class="flex gap-2">
+                    <label class="input w-full flex items-center gap-2">
+                        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            aria-hidden="true" focusable="false">
+                            <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                                stroke="currentColor">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.3-4.3"></path>
+                            </g>
+                        </svg>
+                        <input type="search" name="Ciudad" required placeholder="Escribe una ciudad..."
+                            aria-label="Nombre de la ciudad a buscar" />
+                    </label>
 
-                    <input type="search" name="Ciudad" required placeholder="Escribe una ciudad..."
-                        aria-label="Nombre de la ciudad a buscar" />
-                </label>
+                    <button type="button" id="location-btn" class="btn btn-square btn-outline border-stone-200 w-fit"
+                        title="Usar mi ubicación">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="w-6 h-6">
+                            <line x1="2" x2="5" y1="12" y2="12" />
+                            <line x1="19" x2="22" y1="12" y2="12" />
+                            <line x1="12" x2="12" y1="2" y2="5" />
+                            <line x1="12" x2="12" y1="19" y2="22" />
+                            <circle cx="12" cy="12" r="7" />
+                        </svg>
+                    </button>
+                </div>
             </fieldset>
             <button type="submit" class="btn btn-neutral w-full mt-4">Consultar clima</button>
         </form>

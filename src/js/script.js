@@ -1,7 +1,5 @@
 let currentController = null;
 
-const apiKey = "45fb755a5e2d41489cf171503260402"; // Esta llave no hay problema con sea publica
-
 const diccionarioId = {
     ciudad: document.getElementById('ciudad'),
     pais: document.getElementById('pais'),
@@ -18,6 +16,14 @@ const diccionarioId = {
     pres: document.getElementById('presion')
 }
 
+const sanitizarInput = (texto) => {
+    if (!texto) return "";
+    return texto
+        .trim()
+        .replace(/[<>"'/]/g, "") // Evita la inyeccion de codigo
+        .slice(0, 50); // Supuestamente es correcto limitarlo para evitar abusos
+}
+
 const obtenerDatosClima = async (ciudad) => {
 
     if (currentController) {
@@ -25,8 +31,6 @@ const obtenerDatosClima = async (ciudad) => {
     }
 
     currentController = new AbortController();
-
-    const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${ciudad}`;
 
     actualizarMensaje(4, "Cargando...");
 
@@ -41,7 +45,9 @@ const obtenerDatosClima = async (ciudad) => {
 
     try {
 
-        const respuesta = await fetch(url, {
+        const ciudadEncoded = encodeURIComponent(ciudad);
+
+        const respuesta = await fetch(`/api/clima?ciudad=${ciudadEncoded}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -57,6 +63,11 @@ const obtenerDatosClima = async (ciudad) => {
         clearTimeout(timeOutLento);
 
         const datos = await respuesta.json();
+
+        if (datos.error) {
+            throw new Error(datos.error);
+        }
+
         actualizarMensaje(1, "Datos obtenidos correctamente");
         return datos;
 
@@ -68,7 +79,7 @@ const obtenerDatosClima = async (ciudad) => {
         if (error.name === "AbortError") {
             actualizarMensaje(3, "La petición agoto el tiempo de espera (10s)");
         } else {
-            actualizarMensaje(3, "Error al obtener los datos del clima, por favor intente de nuevo");
+            actualizarMensaje(3, "No se encontro la ciudad, o fallo la red");
         }
 
         return error;
@@ -132,14 +143,10 @@ function actualizarClima(weatherData) {
 
 function gestionarBusqueda(ciudad) {
     obtenerDatosClima(ciudad).then((datos) => {
-
-        document.getElementById("formPrincipal")["Ciudad"].value = "";
-
-        if (datos instanceof Error || datos == null) {
-            return;
+        if (!(datos instanceof Error) && datos != null) {
+            document.getElementById("formPrincipal")["Ciudad"].value = "";
+            actualizarClima(datos);
         }
-
-        actualizarClima(datos);
     });
 }
 
@@ -147,19 +154,47 @@ function subirFormulario() {
     const formPrincipal = document.getElementById("formPrincipal");
     formPrincipal.addEventListener("submit", (event) => {
         event.preventDefault();
-        const ciudad = formPrincipal["Ciudad"].value.trim();
+        const inputRaw = formPrincipal["Ciudad"].value;
+        const ciudad = sanitizarInput(inputRaw);
 
         if (ciudad === "") {
-            mensajesPeticion.textContent = "Por favor ingrese un nombre de ciudad";
+            actualizarMensaje(2, "Por favor ingrese un nombre de ciudad valido");
             return;
         }
         gestionarBusqueda(ciudad);
     });
 }
 
+function activarGeolocalizacion() {
+    const btnGeo = document.getElementById("location-btn");
+
+    if (btnGeo) {
+        btnGeo.addEventListener("click", () => {
+            geolocalizacion();
+        });
+    }
+}
+
+function geolocalizacion() {
+    if (!navigator.geolocation) {
+        actualizarMensaje(3, "No se puede obtener la geolocalizacion");
+        return;
+    }
+
+    actualizarMensaje(4, "Obteniendo ubicacion...");
+
+    navigator.geolocation.getCurrentPosition((position) => {
+        const peticion = `${position.coords.latitude},${position.coords.longitude}`;
+        gestionarBusqueda(peticion);
+    }, (error) => {
+        actualizarMensaje(3, "No se pudo obtener la geolocalizacion");
+    })
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     subirFormulario();
+    activarGeolocalizacion();
 
     gestionarBusqueda("Hermosillo");
 
