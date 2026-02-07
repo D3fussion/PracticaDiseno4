@@ -243,6 +243,20 @@ function actualizarBoton(estado) {
     }
 }
 
+function primeraBusqueda() {
+    fetch('https://ipapi.co/json/')
+        .then(response => response.json())
+        .then(data => {
+
+            gestionarBusqueda(data.city);
+
+        })
+        .catch(error => {
+            console.error('Error obteniendo IP:', error);
+            actualizarMensaje(3, "No se pudo obtener la geolocalizacion");
+        });
+}
+
 function geolocalizacion() {
     if (!navigator.geolocation) {
         actualizarMensaje(3, "No se puede obtener la geolocalizacion");
@@ -264,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
     subirFormulario();
     activarGeolocalizacion();
 
-    gestionarBusqueda("Hermosillo");
+    primeraBusqueda(); // Evita preguntarle al usuario por su ubicacion en la primera vez
 
 });
 
