@@ -1,4 +1,10 @@
-let currentController = null;
+let currentRequest = {
+    controller: null,
+    timeoutId: null,
+    slowWarningId: null
+};
+
+const retryMax = 3;
 
 const diccionarioId = {
     ciudad: document.getElementById('ciudad'),
@@ -16,6 +22,11 @@ const diccionarioId = {
     pres: document.getElementById('presion')
 }
 
+const delay = millis => new Promise((resolve, reject) => {
+    setTimeout(_ => resolve(), millis)
+});
+
+
 const sanitizarInput = (texto) => {
     if (!texto) return "";
     return texto
@@ -26,41 +37,79 @@ const sanitizarInput = (texto) => {
 
 const obtenerDatosClima = async (ciudad) => {
 
-    if (currentController) {
-        currentController.abort();
+    if (currentRequest.controller) {
+        currentRequest.controller.abort('new_search');
+        clearTimeout(currentRequest.timeoutId);
+        clearTimeout(currentRequest.slowWarningId);
     }
 
-    currentController = new AbortController();
+    const controller = new AbortController();
+
+    currentRequest = {
+        controller: controller,
+        timeoutId: setTimeout(() => {
+            controller.abort('timeout');
+        }, 10000), // 10s timeout
+        slowWarningId: setTimeout(() => {
+            actualizarMensaje(2, "La petición está tardando más de lo esperado");
+        }, 5000) // 5s warning
+    };
 
     actualizarMensaje(4, "Cargando...");
-
-    const timeOutError = setTimeout(() => {
-        actualizarMensaje(3, "Error al obtener los datos del clima");
-        currentController.abort();
-    }, 10000);
-
-    const timeOutLento = setTimeout(() => {
-        actualizarMensaje(2, "La petición está tardando más de lo esperado");
-    }, 5000);
+    actualizarBoton(true);
 
     try {
+        let retryCount = 0;
+        let respuesta = null;
+        let lastError = null;
 
-        const ciudadEncoded = encodeURIComponent(ciudad);
+        while (retryCount < retryMax) {
+            try {
+                const ciudadEncoded = encodeURIComponent(ciudad);
 
-        const respuesta = await fetch(`/api/clima?ciudad=${ciudadEncoded}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            signal: currentController.signal
-        });
+                respuesta = await fetch(`/api/clima?ciudad=${ciudadEncoded}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    signal: controller.signal
+                });
 
-        if (!respuesta.ok) {
-            throw new Error("No se pudo obtener los datos del clima");
+                if (respuesta.status >= 400 && respuesta.status < 500) {
+                    break;
+                }
+
+                if (respuesta.ok) {
+                    break;
+                }
+
+                throw new Error(`Error del servidor: ${respuesta.status}`);
+
+            } catch (fetchError) {
+                if (fetchError.name === 'AbortError') throw fetchError;
+
+                lastError = fetchError;
+                retryCount++;
+
+                if (retryCount < retryMax) {
+                    actualizarMensaje(2, `Reintentando... (${retryCount}/${retryMax})`);
+                    await delay(1000);
+                }
+            }
         }
 
-        clearTimeout(timeOutError);
-        clearTimeout(timeOutLento);
+        if (currentRequest.controller === controller) {
+            clearTimeout(currentRequest.timeoutId);
+            clearTimeout(currentRequest.slowWarningId);
+            currentRequest = { controller: null, timeoutId: null, slowWarningId: null };
+        }
+
+        if (!respuesta || !respuesta.ok) {
+            const mensaje = respuesta && respuesta.status === 400
+                ? "Ciudad no encontrada o inválida"
+                : (lastError ? "Fallo de red o servidor" : "No se pudo obtener el clima");
+            throw new Error(mensaje);
+        }
 
         const datos = await respuesta.json();
 
@@ -69,17 +118,27 @@ const obtenerDatosClima = async (ciudad) => {
         }
 
         actualizarMensaje(1, "Datos obtenidos correctamente");
+        actualizarBoton(false);
         return datos;
 
     } catch (error) {
+        const reason = controller.signal.reason;
 
-        clearTimeout(timeOutError);
-        clearTimeout(timeOutLento);
+        if (reason === 'new_search' || error === 'new_search') {
+            return;
+        }
 
-        if (error.name === "AbortError") {
-            actualizarMensaje(3, "La petición agoto el tiempo de espera (10s)");
+        if (currentRequest.controller === controller) {
+            clearTimeout(currentRequest.timeoutId);
+            clearTimeout(currentRequest.slowWarningId);
+            currentRequest = { controller: null, timeoutId: null, slowWarningId: null };
+            actualizarBoton(false);
+        }
+
+        if (reason === 'timeout' || error === 'timeout') {
+            actualizarMensaje(3, "La petición agotó el tiempo de espera (10s)");
         } else {
-            actualizarMensaje(3, "No se encontro la ciudad, o fallo la red");
+            actualizarMensaje(3, error.message || "Ocurrió un error inesperado");
         }
 
         return error;
@@ -172,6 +231,15 @@ function activarGeolocalizacion() {
         btnGeo.addEventListener("click", () => {
             geolocalizacion();
         });
+    }
+}
+
+function actualizarBoton(estado) {
+    const boton = document.getElementById("botonSubmit");
+    if (estado) {
+        boton.classList.add("btn-disabled");
+    } else {
+        boton.classList.remove("btn-disabled");
     }
 }
 
